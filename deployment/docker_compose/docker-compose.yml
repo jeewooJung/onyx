@@ -53,15 +53,9 @@ services:
       - path: .env
         required: false
     depends_on:
-      relational_db:
-        condition: service_started
-        required: false
       index:
         condition: service_started
       opensearch:
-        condition: service_started
-        required: false
-      cache:
         condition: service_started
         required: false
       inference_model_server:
@@ -145,15 +139,9 @@ services:
       - path: .env
         required: false
     depends_on:
-      relational_db:
-        condition: service_started
-        required: false
       index:
         condition: service_started
       opensearch:
-        condition: service_started
-        required: false
-      cache:
         condition: service_started
         required: false
       inference_model_server:
@@ -481,11 +469,13 @@ services:
     # does not receive any traffic
     # PRODUCTION: Change to app.conf.template.prod for production nginx config
     command: >
-      /bin/sh -c "rm -f /etc/nginx/conf.d/default.conf
-      && cp -a /nginx-templates/. /etc/nginx/conf.d/
-      && sed 's/\r$//' /etc/nginx/conf.d/run-nginx.sh > /tmp/run-nginx.sh
-      && chmod +x /tmp/run-nginx.sh
-      && /tmp/run-nginx.sh app.conf.template"
+      sh -c "
+      rm -f /etc/nginx/conf.d/default.conf &&
+      cp -a /nginx-templates/. /etc/nginx/conf.d/ &&
+      sed -i 's/\r$$//' /etc/nginx/conf.d/run-nginx.sh &&
+      chmod +x /etc/nginx/conf.d/run-nginx.sh &&
+      /etc/nginx/conf.d/run-nginx.sh app.conf.template
+      "
 
   # REMOVED: Using external Redis instance instead
   # To use an external Redis instance, set:
