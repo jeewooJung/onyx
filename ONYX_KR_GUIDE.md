@@ -70,6 +70,17 @@ cd deployment/docker_compose
 cp .env.external-db.example .env
 ```
 
+**⚠️ 사전 확인:**
+```bash
+# PostgreSQL 비밀번호 확인
+psql -h POSTGRES_HOST -U POSTGRES_USER -d postgres
+
+# Redis 비밀번호 확인
+redis-cli -h REDIS_HOST ping
+# 또는 비밀번호가 있는 경우
+redis-cli -h REDIS_HOST -a REDIS_PASSWORD ping
+```
+
 **파일 위치:**
 ```
 onyx/
@@ -102,6 +113,7 @@ POSTGRES_DB=onyx_db                       # 새로 생성될 DB 이름
 # Redis 설정
 REDIS_HOST=your_redis_host                # 예: localhost, 192.168.1.100, redis.example.com
 REDIS_PORT=6379                            # Redis 포트 (기본값: 6379)
+REDIS_PASSWORD=your_redis_password        # Redis 비밀번호 (있을 경우만, 없으면 주석 처리)
 
 # 파일 저장소 설정
 FILE_STORE_BACKEND=postgres               # PostgreSQL을 파일 저장소로 사용 (권장)
@@ -228,6 +240,18 @@ USER_AUTH_SECRET=generated_secret_key
 # openssl rand -hex 32
 ```
 
+### Redis 비밀번호 설정 (선택사항)
+
+```env
+# Redis에 비밀번호가 없는 경우 (기본값)
+# REDIS_PASSWORD=  (주석 처리 또는 비워둠)
+
+# Redis에 비밀번호가 있는 경우
+REDIS_PASSWORD=your_redis_password
+REDIS_HOST=your_redis_host
+REDIS_PORT=6379
+```
+
 ---
 
 ## 📊 시스템 구조
@@ -289,8 +313,22 @@ docker exec -it api_server ping your_postgres_host
 
 ### Redis 연결 실패
 ```bash
-# Redis 접속 확인
+# Redis 접속 확인 (비밀번호 없는 경우)
 redis-cli -h your_redis_host ping
+
+# Redis 접속 확인 (비밀번호 있는 경우)
+redis-cli -h your_redis_host -a your_redis_password ping
+# 또는
+redis-cli -h your_redis_host
+> AUTH your_redis_password
+> PING
+```
+
+**Redis 비밀번호 확인:**
+```bash
+# Redis 설정 확인
+redis-cli -h your_redis_host -a your_redis_password
+> CONFIG GET requirepass
 ```
 
 ### 포트 이미 사용 중
@@ -314,9 +352,11 @@ ls -la .env
 
 # 2) 파일 내용 확인
 cat .env | grep POSTGRES_HOST
+cat .env | grep REDIS_PASSWORD
 
 # 3) Docker 환경변수 확인
 docker exec api_server env | grep POSTGRES_HOST
+docker exec api_server env | grep REDIS_PASSWORD
 ```
 
 ✅ **올바른 위치:**

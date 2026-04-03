@@ -230,7 +230,7 @@ class RedisPool:
                 host=host,
                 port=port,
                 db=db,
-                password=password,
+                password=password or None,  # Convert empty string to None
                 max_connections=max_connections,
                 timeout=None,
                 health_check_interval=REDIS_HEALTH_CHECK_INTERVAL,
@@ -245,7 +245,7 @@ class RedisPool:
             host=host,
             port=port,
             db=db,
-            password=password,
+            password=password or None,  # Convert empty string to None
             max_connections=max_connections,
             timeout=None,
             health_check_interval=REDIS_HEALTH_CHECK_INTERVAL,
